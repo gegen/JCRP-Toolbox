@@ -1,0 +1,76 @@
+body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.Container {
+  position: absolute;
+  top: 55%;
+  right: 10%;
+  min-width: 300px;
+}
+
+.Container-Queue {
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
+}
+
+.innerContainer {
+  padding: 20px;
+  text-align: center;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+button {
+  background-color: #f8f9fa;
+  padding: .375rem .75rem;
+  margin: 0 .3em;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400; 
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+button:hover {
+  background-color: rgb(185, 185, 185);
+}
+
+button.smallbtn {
+  padding: .2rem .5rem;
+}
+
+button.outlinebtn{
+  color: rgb(179, 179, 179);
+  background-color: transparent;
+  border-color: rgb(179, 179, 179);
+}
+button.outlinebtn:hover {
+  color: white;
+  background-color: rgb(58, 58, 58);
+}
+
+.title {
+  padding: 15px 50px 15px 15px;
+  font-weight: 400;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: rgb(255, 52, 52);
+  border-bottom: 1px solid rgb(255, 52, 52);
+  /*Blue color : rgb(0, 166, 231)*/
+}
+
+li {
+  color: white;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.selected {
+  color: black;
+  font-weight: 400;
+  background-color: rgba(255, 255, 255, 0.9);
+}

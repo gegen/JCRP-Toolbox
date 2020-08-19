@@ -7,6 +7,8 @@ description 'JCRP Toolbox'
 
 
 client_scripts {
+    "k9-config.lua",
+    "k9-client.lua",
     "nui-c.lua",
     "actions.lua"
 }

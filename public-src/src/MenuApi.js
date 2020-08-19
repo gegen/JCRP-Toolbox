@@ -4,7 +4,7 @@ import Axios from 'axios';
 export default function Menu({ title, children }) {
     const [display, setDisplay] = useState(false);
     const [subMenuOrder, setSubMenuOrder] = useState([]);
-    const [listIndex, setlistIndex] = useState(0);
+    const [listIndex, setListIndex] = useState(0);
 
     let menuTitle = title
     let menuStructure = children
@@ -12,6 +12,11 @@ export default function Menu({ title, children }) {
     for (let i = 0; i < subMenuOrder.length; i++) {
         if (i === subMenuOrder.length - 1) menuTitle = menuStructure[subMenuOrder[i]].props.title ?? menuStructure[subMenuOrder[i]].props.label
         menuStructure = menuStructure[subMenuOrder[i]].props.children
+    }
+
+    const itemCount = Children.toArray(menuStructure).length;
+    if (itemCount - 1 < listIndex) {
+        setListIndex(itemCount - 1)
     }
 
     const handleMessage = useCallback(event => {
@@ -23,13 +28,13 @@ export default function Menu({ title, children }) {
                 break
             case 'navigation':
                 if (data.value === 'Up') {
-                    listIndex === 0 ? setlistIndex(menuStructure.length - 1) : setlistIndex(listIndex - 1)
+                    listIndex === 0 ? setListIndex(menuStructure.length - 1) : setListIndex(listIndex - 1)
                 } else if (data.value === 'Down') {
-                    listIndex === menuStructure.length - 1 ? setlistIndex(0) : setlistIndex(listIndex + 1)
+                    listIndex === menuStructure.length - 1 ? setListIndex(0) : setListIndex(listIndex + 1)
                 } else if (data.value === "Enter") {
                     const currentItem = Children.toArray(menuStructure)[listIndex]
                     if (currentItem.type === SubMenu) {
-                        setlistIndex(0)
+                        setListIndex(0)
                         setSubMenuOrder(prev => [...prev, listIndex])
                     }
                     if (currentItem.props.onSelect) currentItem.props.onSelect()
@@ -37,14 +42,14 @@ export default function Menu({ title, children }) {
                     if (subMenuOrder.length === 0) {
                         Axios.post('http://jcrp-toolbox/close', JSON.stringify())
                     } else {
-                        setlistIndex(subMenuOrder[subMenuOrder.length - 1])
+                        setListIndex(subMenuOrder[subMenuOrder.length - 1])
                         setSubMenuOrder(subMenuOrder.filter((elm, index) => index < subMenuOrder.length - 1))
                     }
                 }
                 break
             default:
         }
-    }, [menuStructure, listIndex, subMenuOrder, setlistIndex])
+    }, [menuStructure, listIndex, subMenuOrder, setListIndex])
 
     useEffect(() => {
         window.addEventListener('message', handleMessage)

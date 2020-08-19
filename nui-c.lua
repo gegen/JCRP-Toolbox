@@ -24,9 +24,10 @@ function displayMenu(toggle)
     })
 end
 
-RegisterNUICallback("close", function()
+RegisterNUICallback("close", function(data, cb)
     displayMenu(false)
     spawningObject = false
+    cb("ok")
 end)
 
 Citizen.CreateThread(function ()

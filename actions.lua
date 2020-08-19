@@ -7,31 +7,37 @@ local props = {
     trafficBarrel = 'prop_barrier_wat_03a'
 }
 
-RegisterNUICallback('displayMsg', function(msg)
+RegisterNUICallback('displayMsg', function(msg,cb)
     SetNotificationTextEntry("STRING")
     AddTextComponentString(msg)
     DrawNotification(false, false)
+    cb("ok")
 end)
 
-RegisterNUICallback('executeCommand', function(cmd)
+RegisterNUICallback('executeCommand', function(cmd, cb)
     ExecuteCommand(cmd)
+    cb("ok")
 end)
 
-RegisterNUICallback('setSpikes', function(double)
+RegisterNUICallback('setSpikes', function(double, cb)
     SetSpikesOnGround(double)
+    cb("ok")
 end)
-RegisterNUICallback('removeSpikes', function()
+RegisterNUICallback('removeSpikes', function(data, cb)
     DeleteObjects(props.spikes, 4)
+    cb("ok")
 end)
 
-RegisterNUICallback('spawnObject', function(obj)
+RegisterNUICallback('spawnObject', function(obj, cb)
     SpawnObject(props[obj])
+    cb("ok")
 end)
 
-RegisterNUICallback('deleteCloseObjects', function()
+RegisterNUICallback('deleteCloseObjects', function(data, cb)
     for _, prop in pairs(props) do
         DeleteObjects(prop)
     end
+    cb("ok")
 end)
 
 RegisterCommand('sp', function()

@@ -170,7 +170,7 @@ end)
                     Notification(tostring("K9 will nolonger follow you."))
                 end
             end
-        else
+        elseif spawned_ped ~= nil then
             Notification(tostring("~r~K9 has despawned."))
         end
     end)

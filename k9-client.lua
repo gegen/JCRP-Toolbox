@@ -103,7 +103,7 @@ end)
             local plyCoords = GetOffsetFromEntityInWorldCoords(GetLocalPed(), 0.0, 2.0, 0.0)
             local dog = CreatePed(28, ped, plyCoords.x, plyCoords.y, plyCoords.z, GetEntityHeading(GetLocalPed()), 0, 1)
             spawned_ped = dog
-            SetPedComponentVariation(spawned_ped, 3, 0, textureIds[texture])
+            SetPedComponentVariation(spawned_ped, 8, 0, textureIds[texture])
             SetBlockingOfNonTemporaryEvents(spawned_ped, true)
             SetPedFleeAttributes(spawned_ped, 0, 0)
             SetPedRelationshipGroupHash(spawned_ped, GetHashKey("k9"))
@@ -118,6 +118,9 @@ end)
                 NetworkRegisterEntityAsNetworked(spawned_ped)
                 Citizen.Wait(1)
             end
+            attacking = false
+            following = false
+            searching = false       
         else
             local has_control = false
             RequestNetworkControl(function(cb)
@@ -234,7 +237,7 @@ end)
                 if has_control then
                     local player = GetPlayerFromServerId(GetPlayerId(target))
                     SetCanAttackFriendly(spawned_ped, true, true)
-                    TaskPutPedDirectlyIntoMelee(spawned_ped, GetPlayerPed(player), 0.0, -1.0, 0.0, 0)
+                    TaskPutPedDirectlyIntoMelee(spawned_ped, target, 0.0, -1.0, 0.0, 0)
                     Notification(tostring("K9 is attacking player."))
                 end
             else
@@ -321,7 +324,7 @@ end)
             Citizen.Wait(0)
 
             -- Trigger Attack
-            if IsControlJustPressed(1, 47) and IsPlayerFreeAiming(PlayerId()) then
+            if IsControlJustPressed(1, 73) and IsPlayerFreeAiming(PlayerId()) then
                 local bool, target = GetEntityPlayerIsFreeAimingAt(PlayerId())
 
                 if bool then
@@ -332,7 +335,7 @@ end)
             end
 
             -- Trigger Follow
-            if IsControlJustPressed(1, 47) and not IsPlayerFreeAiming(PlayerId()) then
+            if IsControlJustPressed(1, 73) and not IsPlayerFreeAiming(PlayerId()) then
                 TriggerEvent("K9:ToggleFollow")
             end
 
@@ -356,6 +359,9 @@ end)
             })
 
             if spawned_ped ~= nil then
+                if attacking and not GetIsTaskActive(spawned_ped, 128) then
+                    attacking = false
+                end
                 if not DoesEntityExist(spawned_ped) then
                     spawned_ped = nil
                     Notification(tostring("~r~Your K9 has despawned."))

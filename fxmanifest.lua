@@ -7,12 +7,12 @@ description 'JCRP Toolbox'
 
 
 client_scripts {
-    "k9-config.lua",
     "k9-client.lua",
     "nui-c.lua",
     "actions.lua"
 }
 server_scripts {
+    "k9-server.js",
     "server.lua"
 }
 
@@ -21,5 +21,5 @@ files {
     'public/index.html',
     'public/asset-manifest.json',
     'public/static/css/*.css',
-    'public/static/js/*.js'
+    'public/static/js/*.js',
 }

@@ -68,24 +68,32 @@ function App() {
 
     return (
         <Menu title="JCRP Toolbox">
-            <SubMenu label="Actions" title={playerNearby ? `[${id}] ${name}` : 'No player nearby.'}>
+            <SubMenu restricted={k9Data.auth !== true} label="Actions" title={playerNearby ? `[${id}] ${name}` : 'No player nearby.'}>
                 <Item label="Cuff / Uncuff" onSelect={toggleCuff} />
                 <Item label="Drag" onSelect={toggleDrag} />
             </SubMenu>
             {k9Data.summoned ?
-                <SubMenu label="K9">
+                <SubMenu restricted={k9Data.auth !== true} label="K9">
                     <Item label={`Follow${k9Data.following ? 'ing' : ''}`} onSelect={() => nuiCallback('k9follow')} />
                     <Item label="Sit" onSelect={() => nuiCallback('sit')} />
                     <Item label="Laydown" onSelect={() => nuiCallback('laydown')} />
+                    <Item label="Search player" onSelect={() => nuiCallback('searchplayer')} />
+                    <Item label="Search vehicle" onSelect={() => nuiCallback('searchvehicle')} />
                     <Item label="Enter/Exit vehicle" onSelect={() => nuiCallback('vehicletoggle')} />
                     <Item label="Unsummon K9" onSelect={() => nuiCallback('toggleK9')} />
                 </SubMenu>
                 :
-                <SubMenu label="K9">
-                    <Item label="Summon K9" onSelect={() => nuiCallback('toggleK9')} />
+                <SubMenu restricted={k9Data.auth !== true} label="K9">
+                    <SubMenu label="Summon K9">
+                        <Item label="State Police" onSelect={() => nuiCallback('toggleK9', 'state')} />
+                        <Item label="Sheriff" onSelect={() => nuiCallback('toggleK9', 'sheriff')} />
+                        <Item label="Police" onSelect={() => nuiCallback('toggleK9', 'police')} />
+                        <Item label="Rescue" onSelect={() => nuiCallback('toggleK9', 'rescue')} />
+                        <Item label="Security" onSelect={() => nuiCallback('toggleK9', 'security')} />
+                    </SubMenu>
                 </SubMenu>
             }
-            <SubMenu label="Spikes">
+            <SubMenu restricted={k9Data.auth !== true} label="Spikes">
                 <Item label="Place Spikes" onSelect={() => setSpikes(false)} />
                 <Item label="Place 2x Spikes" onSelect={() => setSpikes(true)} />
                 <Item label="Remove Spikes" onSelect={removeSpikes} />

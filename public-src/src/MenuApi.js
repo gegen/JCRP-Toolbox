@@ -10,8 +10,13 @@ export default function Menu({ title, children }) {
     let menuStructure = children
 
     for (let i = 0; i < subMenuOrder.length; i++) {
-        if (i === subMenuOrder.length - 1) menuTitle = menuStructure[subMenuOrder[i]].props.title ?? menuStructure[subMenuOrder[i]].props.label
-        menuStructure = menuStructure[subMenuOrder[i]].props.children
+        if (menuStructure.length) {
+            if (i === subMenuOrder.length - 1) menuTitle = menuStructure[subMenuOrder[i]].props.title ?? menuStructure[subMenuOrder[i]].props.label
+            menuStructure = menuStructure[subMenuOrder[i]].props.children
+        } else {
+            if (i === subMenuOrder.length - 1) menuTitle = menuStructure.props.title ?? menuStructure.props.label
+            menuStructure = menuStructure.props.children
+        }
     }
 
     const itemCount = Children.toArray(menuStructure).length;
@@ -33,11 +38,15 @@ export default function Menu({ title, children }) {
                     listIndex === menuStructure.length - 1 ? setListIndex(0) : setListIndex(listIndex + 1)
                 } else if (data.value === "Enter") {
                     const currentItem = Children.toArray(menuStructure)[listIndex]
-                    if (currentItem.type === SubMenu) {
-                        setListIndex(0)
-                        setSubMenuOrder(prev => [...prev, listIndex])
+                    if (currentItem.props.restricted) {
+                        Axios.post('http://jcrp-toolbox/notification', JSON.stringify('~r~Only first responder have access.'))
+                    } else {
+                        if (currentItem.type === SubMenu) {
+                            setListIndex(0)
+                            setSubMenuOrder(prev => [...prev, listIndex])
+                        }
+                        if (currentItem.props.onSelect) currentItem.props.onSelect()
                     }
-                    if (currentItem.props.onSelect) currentItem.props.onSelect()
                 } else if (data.value === "Back") {
                     if (subMenuOrder.length === 0) {
                         Axios.post('http://jcrp-toolbox/close', JSON.stringify())
@@ -48,6 +57,7 @@ export default function Menu({ title, children }) {
                 }
                 break
             default:
+                break
         }
     }, [menuStructure, listIndex, subMenuOrder, setListIndex])
 

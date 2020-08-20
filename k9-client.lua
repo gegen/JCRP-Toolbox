@@ -1,9 +1,21 @@
+local K9Config = {
+    OpenDoorsOnSearch = true
+}
+
+local textureIds = {
+    ["police"] = 0,
+    ["sheriff"] = 1,
+    ["rescue"] = 2,
+    ["state"] = 3,
+    ["security"] = 7
+}
+
 local spawned_ped = nil
 local following = false
 local attacking = false
 local searching = false
+local auth = false
 local blip = nil
-
 local animations = {
     ['Normal'] = {
         sit = {
@@ -19,8 +31,8 @@ local animations = {
 
 --[[ NUI Callbacks ]]--
 
-RegisterNUICallback("toggleK9", function(data, cb)
-    TriggerEvent("K9:ToggleK9")
+RegisterNUICallback("toggleK9", function(texture, cb)
+    TriggerEvent("K9:ToggleK9", texture)
     cb("ok")
 end)
 
@@ -29,8 +41,13 @@ RegisterNUICallback("vehicletoggle", function(data, cb)
     cb("ok")
 end)
 
-RegisterNUICallback("vehiclesearch", function(data, cb)
+RegisterNUICallback("searchvehicle", function(data, cb)
     TriggerEvent("K9:SearchVehicle")
+    cb("ok")
+end)
+RegisterNUICallback("searchplayer", function(data, cb)
+    --TriggerEvent("K9:SearchVehicle")
+    ExecuteCommand('do K9 starts sniffing player. (^1Respond: Does it smell anything?^0)')
     cb("ok")
 end)
 
@@ -67,12 +84,16 @@ end)
 
     -- Spawns and Deletes K9
     --RegisterNetEvent("K9:ToggleK9")
-    AddEventHandler("K9:ToggleK9", function()
+    AddEventHandler("K9:ToggleK9", function(texture)
         if IsPedInAnyVehicle(GetLocalPed(), false) then
             Notification(tostring("~r~You need to exit your vehicle."))
             return
         end
         if not DoesEntityExist(spawned_ped) then
+            SendNUIMessage({
+                type = "navigation",
+                value = "Back"
+            })
             local ped = GetHashKey('a_c_shepherd')
             RequestModel(ped)
             while not HasModelLoaded(ped) do
@@ -82,6 +103,7 @@ end)
             local plyCoords = GetOffsetFromEntityInWorldCoords(GetLocalPed(), 0.0, 2.0, 0.0)
             local dog = CreatePed(28, ped, plyCoords.x, plyCoords.y, plyCoords.z, GetEntityHeading(GetLocalPed()), 0, 1)
             spawned_ped = dog
+            SetPedComponentVariation(spawned_ped, 3, 0, textureIds[texture])
             SetBlockingOfNonTemporaryEvents(spawned_ped, true)
             SetPedFleeAttributes(spawned_ped, 0, 0)
             SetPedRelationshipGroupHash(spawned_ped, GetHashKey("k9"))
@@ -119,7 +141,6 @@ end)
     -- Toggles K9 to Follow / Heel
     --RegisterNetEvent("K9:ToggleFollow")
     AddEventHandler("K9:ToggleFollow", function()
-        --if spawned_ped ~= nil then
         if DoesEntityExist(spawned_ped) then
             if not following then
                 local has_control = false
@@ -163,7 +184,7 @@ end)
                     if not IsPedInAnyVehicle(GetLocalPed(), false) then
                         local plyCoords = GetEntityCoords(GetLocalPed(), false)
                         local vehicle = GetVehicleAheadOfPlayer()
-                        if vehicle ~= false then
+                        if vehicle ~= 0 then
                             local door = GetClosestVehicleDoor(vehicle)
                             if door ~= false then
                                 TaskEnterVehicle(spawned_ped, vehicle, -1, door, 2.0, 1, 0)
@@ -176,7 +197,7 @@ end)
                         end
                     else
                         local vehicle = GetVehiclePedIsIn(GetLocalPed(), false)
-                        if vehicle ~= 0 then
+                        if vehicle ~= 1 then
                             if GetNumberOfVehicleDoors(vehicle) > 4 then
                                 local door = 1
                                 TaskEnterVehicle(spawned_ped, vehicle, -1, door, 2.0, 1, 0)
@@ -238,7 +259,7 @@ end)
     --RegisterNetEvent("K9:SearchVehicle")
     AddEventHandler("K9:SearchVehicle", function()
         if searching then
-            Notification(tostring("~r~K9 is currently searching..."))
+            Notification(tostring("~r~K9 is already searching..."))
             return
         end
         local vehicle = GetVehicleAheadOfPlayer()
@@ -246,10 +267,13 @@ end)
             searching = true
 
             Notification(tostring("K9 has began searching..."))
+            ExecuteCommand('do K9 starts sniffing vehicle. (^1Respond: Does it smell anything?^0)')
             
             if K9Config.OpenDoorsOnSearch then
-                for i=0,GetNumberOfVehicleDoors() do
-                    SetVehicleDoorOpen(vehicle, i, 0, 0)
+                for i=0, 7 do
+                    if i ~= 4 then
+                        SetVehicleDoorOpen(vehicle, i, 0, 0)
+                    end
                 end
             end
 
@@ -319,7 +343,6 @@ end)
         end
     end)
 
-    -- DO NOT TOUCH (CLEANER)
     Citizen.CreateThread(function()
         while true do
             Citizen.Wait(100)
@@ -327,7 +350,8 @@ end)
                 type = "k9Data",
                 data = {
                     following = following,
-                    summoned = spawned_ped ~= nil
+                    summoned = spawned_ped ~= nil,
+                    auth = auth,
                 }
             })
 
@@ -346,6 +370,19 @@ end)
             end
         end
     end)
+
+    Citizen.CreateThread(function()
+        while true do
+            Citizen.Wait(2000)
+            TriggerServerEvent('k9:GetPerms')
+        end
+    end)
+
+    RegisterNetEvent("k9:GetPerms:callback")
+    AddEventHandler("k9:GetPerms:callback", function(_auth)
+        auth = _auth
+    end)
+    
 
 --]]
 

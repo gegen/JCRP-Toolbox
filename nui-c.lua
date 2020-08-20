@@ -30,6 +30,11 @@ RegisterNUICallback("close", function(data, cb)
     cb("ok")
 end)
 
+RegisterNUICallback("notification", function(msg, cb)
+    Notification(msg)
+    cb("ok")
+end)
+
 Citizen.CreateThread(function ()
     Citizen.Wait(300) -- Make sure nui has fully loaded
     while true do
@@ -158,3 +163,9 @@ Citizen.CreateThread(function ()
         Citizen.Wait(0)
     end
 end)
+
+function Notification(message)
+	SetNotificationTextEntry("STRING")
+	AddTextComponentString(message)
+	DrawNotification(0, 1)
+end

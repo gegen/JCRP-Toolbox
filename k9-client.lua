@@ -267,6 +267,7 @@ end)
         end
         local vehicle = GetVehicleAheadOfPlayer()
         if vehicle ~= 0 then
+            following = false
             searching = true
 
             Notification(tostring("K9 has began searching..."))

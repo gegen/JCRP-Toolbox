@@ -336,7 +336,7 @@ end)
             end
 
             -- Trigger Follow
-            if IsControlJustPressed(1, 73) and not IsPlayerFreeAiming(PlayerId()) then
+            if IsControlJustPressed(1, 73) and not IsPlayerFreeAiming(PlayerId()) and IsInputDisabled(17) == 1 then
                 TriggerEvent("K9:ToggleFollow")
             end
 

@@ -41,6 +41,10 @@ function App() {
     function toggleHandsUp() {
         Axios.post('http://jcrp-toolbox/executeCommand', JSON.stringify('e handsup'))
     }
+    function showID() {
+        Axios.post('http://jcrp-toolbox/close', JSON.stringify(''))
+        Axios.post('http://jcrp-toolbox/executeCommand', JSON.stringify('id'))
+    }
     function toggleCuff() {
         if (!playerNearby) return Axios.post('http://jcrp-toolbox/displayMsg', JSON.stringify('No player nearby.'))
         Axios.post('http://jcrp-toolbox/executeCommand', JSON.stringify('cuff ' + id))
@@ -106,6 +110,7 @@ function App() {
                 <Item label="Traffic Barrel" onSelect={() => spawnObject('trafficBarrel')} />
                 <Item label="Remove Close Objects" onSelect={deleteCloseObjects} />
             </SubMenu>
+            <Item label="Show ID" onSelect={showID} />
             <Item label="Hands up" onSelect={toggleHandsUp} />
         </Menu>
         /*

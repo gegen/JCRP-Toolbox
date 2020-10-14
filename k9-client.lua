@@ -145,7 +145,22 @@ end)
     --RegisterNetEvent("K9:ToggleFollow")
     AddEventHandler("K9:ToggleFollow", function()
         if DoesEntityExist(spawned_ped) then
-            if not following then
+            if IsPedInAnyVehicle(GetLocalPed(), false) then
+                local vehicle = GetVehiclePedIsIn(GetLocalPed(), false)
+                if vehicle ~= 1 then
+                    if GetNumberOfVehicleDoors(vehicle) > 4 then
+                        local door = 1
+                        RequestNetworkControl()
+                        TaskEnterVehicle(spawned_ped, vehicle, -1, door, 2.0, 1, 0)
+                        Notification(tostring("K9 is entering your vehicle."))
+                    else
+                        Notification(tostring("~r~Vehicle has no rear door.")) 
+                    end
+                else
+                    Notification(tostring("~r~Unable to get players vehicle."))
+                end
+            elseif IsPedInAnyVehicle(spawned_ped, true) or not following then
+                SetPedCanRagdoll(spawned_ped, false)
                 local has_control = false
                 RequestNetworkControl(function(cb)
                     has_control = cb
@@ -157,6 +172,8 @@ end)
                     attacking = false
                     Notification(tostring("K9 will now follow you."))
                 end
+                Citizen.wait(5000)
+                SetPedCanRagdoll(spawned_ped, true)
             else
                 local has_control = false
                 RequestNetworkControl(function(cb)
@@ -181,8 +198,14 @@ end)
         if DoesEntityExist(spawned_ped) then
             if not searching then
                 if IsPedInAnyVehicle(spawned_ped, false) then
+                    RequestNetworkControl()
+                    SetPedCanRagdoll(spawned_ped, false)
                     TaskLeaveVehicle(spawned_ped, GetVehiclePedIsIn(spawned_ped, false), 256)
                     Notification(tostring("K9 is exsiting your vehicle."))
+                    Citizen.Wait(5000)
+                    if DoesEntityExist(spawned_ped) then
+                        SetPedCanRagdoll(spawned_ped, true)
+                    end
                 else
                     if not IsPedInAnyVehicle(GetLocalPed(), false) then
                         local plyCoords = GetEntityCoords(GetLocalPed(), false)
@@ -190,6 +213,7 @@ end)
                         if vehicle ~= 0 then
                             local door = GetClosestVehicleDoor(vehicle)
                             if door ~= false then
+                                RequestNetworkControl()
                                 TaskEnterVehicle(spawned_ped, vehicle, -1, door, 2.0, 1, 0)
                                 Notification(tostring("K9 is entering vehicle."))
                             else
@@ -203,6 +227,7 @@ end)
                         if vehicle ~= 1 then
                             if GetNumberOfVehicleDoors(vehicle) > 4 then
                                 local door = 1
+                                RequestNetworkControl()
                                 TaskEnterVehicle(spawned_ped, vehicle, -1, door, 2.0, 1, 0)
                                 Notification(tostring("K9 is entering your vehicle."))
                             else
@@ -236,6 +261,7 @@ end)
                 end)
                 if has_control then
                     local player = GetPlayerFromServerId(GetPlayerId(target))
+                    RequestNetworkControl()
                     SetCanAttackFriendly(spawned_ped, true, true)
                     TaskPutPedDirectlyIntoMelee(spawned_ped, target, 0.0, -1.0, 0.0, 0)
                     Notification(tostring("K9 is attacking player."))
@@ -246,6 +272,7 @@ end)
                     has_control = cb
                 end)
                 if has_control then
+                    RequestNetworkControl()
                     SetCanAttackFriendly(spawned_ped, true, true)
                     TaskPutPedDirectlyIntoMelee(spawned_ped, target, 0.0, -1.0, 0.0, 0)
                     Notification(tostring("K9 is attacking NPC."))
@@ -283,24 +310,28 @@ end)
 
             -- Back Right
             local offsetOne = GetOffsetFromEntityInWorldCoords(vehicle, 2.0, -2.0, 0.0)
+            RequestNetworkControl()
             TaskGoToCoordAnyMeans(spawned_ped, offsetOne.x, offsetOne.y, offsetOne.z, 5.0, 0, 0, 1, 10.0)
 
             Citizen.Wait(7000)
 
             -- Front Right
             local offsetTwo = GetOffsetFromEntityInWorldCoords(vehicle, 2.0, 2.0, 0.0)
+            RequestNetworkControl()
             TaskGoToCoordAnyMeans(spawned_ped, offsetTwo.x, offsetTwo.y, offsetTwo.z, 5.0, 0, 0, 1, 10.0)
 
             Citizen.Wait(7000)
 
             -- Front Left
             local offsetThree = GetOffsetFromEntityInWorldCoords(vehicle, -2.0, 2.0, 0.0)
+            RequestNetworkControl()
             TaskGoToCoordAnyMeans(spawned_ped, offsetThree.x, offsetThree.y, offsetThree.z, 5.0, 0, 0, 1, 10.0)
 
             Citizen.Wait(7000)
 
             -- Front Right
             local offsetFour = GetOffsetFromEntityInWorldCoords(vehicle, -2.0, -2.0, 0.0)
+            RequestNetworkControl()
             TaskGoToCoordAnyMeans(spawned_ped, offsetFour.x, offsetFour.y, offsetFour.z, 5.0, 0, 0, 1, 10.0)
 
             Citizen.Wait(7000)
@@ -411,11 +442,15 @@ function RequestNetworkControl(callback)
         timer = timer + 1
         if timer == 5000 then
             Citizen.Trace("Control failed")
-            callback(false)
+            if callback then
+                callback(false)
+            end
             break
         end
     end
-    callback(true)
+    if callback then
+        callback(true)
+    end
 end
 
 -- Gets Players

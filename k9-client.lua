@@ -172,7 +172,7 @@ end)
                     attacking = false
                     Notification(tostring("K9 will now follow you."))
                 end
-                Citizen.wait(5000)
+                Citizen.Wait(5000)
                 SetPedCanRagdoll(spawned_ped, true)
             else
                 local has_control = false
